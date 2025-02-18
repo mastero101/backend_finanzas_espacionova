@@ -42,20 +42,36 @@ const Expenses = sequelize.define('Expenses', {
     type: DataTypes.FLOAT,
     allowNull: false
   },
-  description: {
+  concept: {
     type: DataTypes.STRING,
     allowNull: false
   },
   category: {
     type: DataTypes.STRING,
-    allowNull: false
+    allowNull: true
   },
-  date: {
+  paymentDate: {
     type: DataTypes.DATE,
-    allowNull: false,
+    allowNull: false
   },
   userId: {
     type: DataTypes.INTEGER,
+    allowNull: false
+  },
+  projectName: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  paidBy: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  fundedBy: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  purchaseLocation: {
+    type: DataTypes.STRING,
     allowNull: false
   }
 });

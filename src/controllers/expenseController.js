@@ -14,22 +14,39 @@ const { Expenses } = require('../models');
  *     Expense:
  *       type: object
  *       required:
+ *         - concept
  *         - amount
- *         - description
- *         - category
+ *         - projectName
+ *         - paidBy
+ *         - fundedBy
+ *         - purchaseLocation
+ *         - paymentDate
  *       properties:
  *         id:
  *           type: integer
  *           description: ID auto-generado del gasto
+ *         concept:
+ *           type: string
+ *           description: Concepto del gasto
  *         amount:
  *           type: number
  *           description: Monto del gasto
- *         description:
+ *         projectName:
  *           type: string
- *           description: Descripción del gasto
- *         category:
+ *           description: Nombre del proyecto asociado
+ *         paidBy:
  *           type: string
- *           description: Categoría del gasto
+ *           description: Persona que realizó el pago
+ *         fundedBy:
+ *           type: string
+ *           description: Entidad que financió el gasto
+ *         purchaseLocation:
+ *           type: string
+ *           description: Lugar donde se realizó la compra
+ *         paymentDate:
+ *           type: string
+ *           format: date
+ *           description: Fecha de pago
  *         userId:
  *           type: integer
  *           description: ID del usuario que creó el gasto
@@ -41,9 +58,13 @@ const { Expenses } = require('../models');
  *           format: date-time
  *       example:
  *         id: 1
+ *         concept: "Compra de materiales"
  *         amount: 100.50
- *         description: "Compra de materiales"
- *         category: "Materiales"
+ *         projectName: "Proyecto X"
+ *         paidBy: "Usuario 1"
+ *         fundedBy: "Empresa A"
+ *         purchaseLocation: "Tienda 1"
+ *         paymentDate: "2024-02-16"
  *         userId: 1
  *         createdAt: "2024-02-16T00:00:00.000Z"
  *         updatedAt: "2024-02-16T00:00:00.000Z"
@@ -62,16 +83,29 @@ const { Expenses } = require('../models');
  *           schema:
  *             type: object
  *             required:
+ *               - concept
  *               - amount
- *               - description
- *               - category
+ *               - projectName
+ *               - paidBy
+ *               - fundedBy
+ *               - purchaseLocation
+ *               - paymentDate
  *             properties:
+ *               concept:
+ *                 type: string
  *               amount:
  *                 type: number
- *               description:
+ *               projectName:
  *                 type: string
- *               category:
+ *               paidBy:
  *                 type: string
+ *               fundedBy:
+ *                 type: string
+ *               purchaseLocation:
+ *                 type: string
+ *               paymentDate:
+ *                 type: string
+ *                 format: date
  *     responses:
  *       201:
  *         description: Gasto creado exitosamente
@@ -86,22 +120,21 @@ const { Expenses } = require('../models');
  */
 const createExpense = async (req, res) => {
   try {
-    const { amount, description, category, date } = req.body;
+    const { concept, amount, projectName, paidBy, fundedBy, purchaseLocation, paymentDate } = req.body;
     
-    if (!amount || !description || !category || !date) {
+    if (!concept || !amount || !projectName || !paidBy || !fundedBy || !purchaseLocation || !paymentDate) {
       return res.status(400).json({ error: 'Faltan campos requeridos' });
     }
 
-    if (amount <= 0) {
-      return res.status(400).json({ error: 'El monto debe ser un número positivo' });
-    }
-
     const newExpense = await Expenses.create({
+      concept,
       amount,
-      description,
-      category,
-      date,
-      userId: 1 // Temporal hasta implementar autenticación
+      projectName,
+      paidBy,
+      fundedBy,
+      purchaseLocation,
+      paymentDate,
+      userId: 1 // Temporal hasta autenticación
     });
 
     res.status(201).json(newExpense);
@@ -158,12 +191,21 @@ const getExpenses = async (req, res) => {
  *           schema:
  *             type: object
  *             properties:
+ *               concept:
+ *                 type: string
  *               amount:
  *                 type: number
- *               description:
+ *               projectName:
  *                 type: string
- *               category:
+ *               paidBy:
  *                 type: string
+ *               fundedBy:
+ *                 type: string
+ *               purchaseLocation:
+ *                 type: string
+ *               paymentDate:
+ *                 type: string
+ *                 format: date
  *     responses:
  *       200:
  *         description: Gasto actualizado
@@ -178,7 +220,7 @@ const getExpenses = async (req, res) => {
  */
 const updateExpense = async (req, res) => {
   const { id } = req.params;
-  const { amount, description, category, date } = req.body;
+  const { concept, amount, projectName, paidBy, fundedBy, purchaseLocation, paymentDate } = req.body;
 
   try {
     const expense = await Expenses.findByPk(id);
@@ -186,10 +228,13 @@ const updateExpense = async (req, res) => {
       return res.status(404).json({ error: 'Gasto no encontrado' });
     }
 
+    expense.concept = concept || expense.concept;
     expense.amount = amount || expense.amount;
-    expense.description = description || expense.description;
-    expense.category = category || expense.category;
-    expense.date = date || expense.date;
+    expense.projectName = projectName || expense.projectName;
+    expense.paidBy = paidBy || expense.paidBy;
+    expense.fundedBy = fundedBy || expense.fundedBy;
+    expense.purchaseLocation = purchaseLocation || expense.purchaseLocation;
+    expense.paymentDate = paymentDate || expense.paymentDate;
 
     await expense.save();
     res.json(expense);
