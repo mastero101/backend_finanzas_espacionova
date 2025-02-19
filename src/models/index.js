@@ -112,8 +112,14 @@ const Receipts = sequelize.define('Receipts', {
 });
 
 // Relación entre Expenses y Receipts
-Expenses.hasMany(Receipts, { foreignKey: 'ExpenseId' });
-Receipts.belongsTo(Expenses, { foreignKey: 'ExpenseId' });
+Expenses.hasMany(Receipts, {
+  foreignKey: 'expenseId',
+  as: 'receipts'
+});
+Receipts.belongsTo(Expenses, {
+  foreignKey: 'expenseId',
+  as: 'expense'
+});
 
 // Definición del modelo Users
 const Users = sequelize.define('Users', {

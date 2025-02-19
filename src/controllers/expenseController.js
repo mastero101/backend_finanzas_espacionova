@@ -1,4 +1,4 @@
-const { Expenses } = require('../models');
+const { Expenses, Receipts } = require('../models');
 
 /**
  * @swagger
@@ -164,9 +164,28 @@ const createExpense = async (req, res) => {
  */
 const getExpenses = async (req, res) => {
   try {
-    const expenses = await Expenses.findAll();
-    res.json(expenses);
+    const expenses = await Expenses.findAll({
+      include: [{
+        model: Receipts,
+        as: 'receipts',  // Usar alias en minúscula
+        attributes: ['id', 'url', 'filename']
+      }]
+    });
+
+    const formattedExpenses = expenses.map(expense => ({
+      ...expense.get({ plain: true }),
+      paymentDate: expense.paymentDate,
+      receipts: expense.receipts.map(r => ({
+        id: r.id,
+        imageUrl: r.url,
+        fileName: r.filename,
+        expenseId: r.ExpenseId
+      }))
+    }));
+
+    res.json(formattedExpenses);
   } catch (error) {
+    console.error('Error al obtener gastos:', error);
     res.status(500).json({ error: 'Error al obtener gastos' });
   }
 };
