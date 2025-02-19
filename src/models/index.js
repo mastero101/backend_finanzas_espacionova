@@ -113,12 +113,16 @@ const Receipts = sequelize.define('Receipts', {
 
 // Relación entre Expenses y Receipts
 Expenses.hasMany(Receipts, {
-  foreignKey: 'expenseId',
+  foreignKey: {
+    name: 'ExpenseId',
+    allowNull: false
+  },
+  onDelete: 'CASCADE',  // Eliminar recibos automáticamente
   as: 'receipts'
 });
 Receipts.belongsTo(Expenses, {
-  foreignKey: 'expenseId',
-  as: 'expense'
+  foreignKey: 'ExpenseId',
+  as: 'Expense'
 });
 
 // Definición del modelo Users

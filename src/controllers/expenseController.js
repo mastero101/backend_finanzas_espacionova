@@ -287,15 +287,26 @@ const deleteExpense = async (req, res) => {
   const { id } = req.params;
 
   try {
-    const expense = await Expenses.findByPk(id);
-    if (!expense) {
+    // Eliminar usando destroy con include para forzar CASCADE si es necesario
+    const result = await Expenses.destroy({
+      where: { id },
+      include: [{
+        model: Receipts,
+        as: 'receipts'
+      }]
+    });
+
+    if (result === 0) {
       return res.status(404).json({ error: 'Gasto no encontrado' });
     }
 
-    await expense.destroy();
-    res.status(204).send(); // No content
+    res.status(204).send();
   } catch (error) {
-    res.status(500).json({ error: 'Error al eliminar el gasto' });
+    console.error('Error eliminando gasto:', error);
+    res.status(500).json({ 
+      error: 'Error al eliminar el gasto',
+      details: error.message
+    });
   }
 };
 
